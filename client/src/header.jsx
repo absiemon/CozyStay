@@ -40,7 +40,7 @@ export default function () {
             setFilteredSuggestions([]);
         }
     }
-
+ 
     useEffect(()=>{
         axios.get('/get-all-notif').then(({data})=>{
             setNotifications(data);
