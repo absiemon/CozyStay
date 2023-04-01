@@ -1,13 +1,14 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Perks from "./Perks";
 import AccountPage from "./pages/AccountPage";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { UserContext } from "./UserContext";
 
-export default function PlaceForm({ flag }) {
-
+export default function PlaceForm({ }) {
+    const {setFlag, flag} = useContext(UserContext);
     const[loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { id } = useParams(); // for add new palce id will be null and for editing place it will be some id.
@@ -114,10 +115,9 @@ export default function PlaceForm({ flag }) {
         else{
             setLoading(true)
             await axios.post(`/new-place?id=${id}`, data).then((response) => {
-                flag = true;
+                setFlag(!flag);
                 setLoading(false);
                 navigate('/account/places');
-                window.location.reload();
             }).catch((error) =>{
                 toast.error("Can not create place due to internal server error");
                 setLoading(false)

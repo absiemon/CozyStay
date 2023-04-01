@@ -1,7 +1,7 @@
 const Place = require("../models/Places.js");
 const Booking = require("../models/Bookings.js");
 var jwt = require('jsonwebtoken');
-const jwt_secret = "$52isu23sdw2";
+const jwt_secret = process.env.JWT_SECRET_KEY;
 const mongoose = require("mongoose");
 const { resolve } = require("path");
 const { rejects } = require("assert");
@@ -93,5 +93,60 @@ module.exports.cancelBooking = async(req, res)=>{
     }
     catch (err) {
         res.status(422).json(err);
+    }
+}
+
+
+module.exports.getNotifications = async(req, res)=>{
+    const {token} = req.cookies;
+    try {
+        if (token) {
+            jwt.verify(token, jwt_secret, {}, async (err, userData) => {
+                if (err) {
+                    res.status(422).json(err);
+                }
+                const notif = await Notification.find({owner: userData.id}).populate('placeId user')
+                res.json(notif);
+            })
+        }
+    } catch (error) {
+        throw new Error(error)
+        res.status(422).json(error);
+    }
+}
+
+module.exports.viewAllNotifications = async(req, res)=>{
+    const {token} = req.cookies;
+    try {
+        if (token) {
+            jwt.verify(token, jwt_secret, {}, async (err, userData) => {
+                if (err) {
+                    res.status(422).json(err);
+                }
+                const notif = await Notification.updateMany({owner: mongoose.Types.ObjectId(userData.id)}, {isSeen: true}, {new:true});
+                res.json(true);
+            })
+        }
+    } catch (error) {
+        throw new Error(error)
+        res.status(422).json(error);
+    }
+}
+
+module.exports.deleteAllNotifications = async(req, res)=>{
+    const {token} = req.cookies;
+    try {
+        if (token) {
+            jwt.verify(token, jwt_secret, {}, async (err, userData) => {
+                if (err) {
+                    res.status(422).json(err);
+                }
+                const notif = await Notification.deleteMany({owner: mongoose.Types.ObjectId(userData.id)});
+                res.json(true);
+            })
+        }
+    } catch (error) {
+        throw new Error(error)
+        res.status(422).json(error);
     }
 }

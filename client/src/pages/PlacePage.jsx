@@ -1,15 +1,16 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import AccountPage from "./AccountPage";
 import Loading from "../loader";
 import { CSSTransition } from 'react-transition-group';
 import '../my-transition.css';
+import { UserContext } from "../UserContext";
 
 export default function PlacePage() {
+    const {flag , setFlag} = useContext(UserContext)
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [flag, setFlag] = useState(false);
     const [addedPlaces, setAddedPlaces] = useState([]);
 
     // showing the added palces
@@ -27,12 +28,7 @@ export default function PlacePage() {
         setLoading(true);
         await axios.post('/mark-under-renovation', { id }).then((res) => {
             setLoading(false);
-            if (!flag) {
-                setFlag(true);
-            }
-            else {
-                setFlag(false);
-            }
+            setFlag(!flag);
         }).catch((err) => console.log(err));
     }
 

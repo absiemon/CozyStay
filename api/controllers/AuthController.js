@@ -6,6 +6,10 @@ const jwt_secret = process.env.JWT_SECRET_KEY
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const twilio = require('twilio')(accountSid, authToken);
+const cookieParser = require('cookie-parser');
+const mongoose = require("mongoose");
+const fs = require('fs');
+const {uplaodToS3} = require('../s3Config.js');
 
 //register login
 module.exports.register = async(req, res) => {
@@ -102,6 +106,60 @@ module.exports.logout = async(req, res) => {
     try {
         res.cookie('token', '').json(true);
     } catch (error) {
+        res.status(422).json(err);
+    }
+}
+
+
+module.exports.getProfile = async(req, res) => {
+    const { token } = req.cookies;
+    try{
+        if (token) {
+            jwt.verify(token, jwt_secret, {}, async (err, data) => {
+                if (err) {
+                    res.status(422).json(err);
+                }
+                await User.findById(data.id, { password: 0 }).then((user) => {
+                    res.json(user);
+                })
+            })
+        }
+        else {
+            res.json(null);
+        }
+    }
+    catch (err) {
+        res.status(422).json(err);
+    }
+    
+}
+
+module.exports.updateProfile = async(req, res) => {
+    try {
+        const { token } = req.cookies;
+        if (token) {
+            jwt.verify(token, jwt_secret, {}, async (err, data) => {
+                if (err) {
+                    res.status(422).json(err);
+                }
+                const uplaodedFiles = [];
+
+                const { path, originalname, mimetype } = req.files[0];
+                const url = await uplaodToS3(path, originalname, mimetype);
+                uplaodedFiles.push(url);
+
+                await User.findByIdAndUpdate(data.id, {avatar: uplaodedFiles[0], isAvatar: true}, {new: true}).then((user) =>{
+                  res.json(uplaodedFiles);
+                }).catch(err =>{
+                    res.json(err)
+                });
+            })
+        }
+        else {
+            res.json(null);
+        }
+       
+    } catch (err) {
         res.status(422).json(err);
     }
 }

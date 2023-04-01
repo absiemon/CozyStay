@@ -1,8 +1,6 @@
-const {getProfile, updateProfile}  = require('../controllers/ProfileController');
-const {register, login, logout, sendOtp, renewPassword} = require('../controllers/AuthController');
+const {register, login, logout, sendOtp, renewPassword, getProfile, updateProfile} = require('../controllers/AuthController');
 const {uploadViaLink, uploadViaSystem, newPlace, getPlaces,getPlaceById, getAllPlaces, markUnderRenovation} = require('../controllers/PlaceController')
-const {bookPlace, getBookings, cancelBooking} = require('../controllers/BookingController')
-const {getNotifications, viewAllNotifications, deleteAllNotifications} = require('../controllers/NotificationController');
+const {bookPlace, getBookings, cancelBooking, getNotifications, viewAllNotifications, deleteAllNotifications} = require('../controllers/BookingController')
 const router = require('express').Router();
 const multer = require('multer');
 
